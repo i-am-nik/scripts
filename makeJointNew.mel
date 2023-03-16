@@ -1,5 +1,5 @@
 /*
-    Make New Joint [0.0.2]
+    Make New Joint [0.0.3]
 
     Script by : Nikhil Ramchandani (3D rigger)
 
@@ -23,7 +23,7 @@ global proc string makeNewJoint(string $args)
     button -aop 1 -label "Create joint on selection" - command ("createJointOnSelection()");
     button -aop 1 -label "Create a joint on center of selection" -command ("createJointOnCenter()");
     button -aop 1 -label "Create joint chain on selection" -command ("createJointChainOnSelection()");
-    button -aop 1 -label "Create joint chain between two points" -command ("createJointBwTwoPoints()");
+    button -aop 1 -label "Create joint chain between two points" -command ("createJointBwTwoPoints("")");
 
     separator -style "single" -height 10;
     button -aop 1 -label "Create locator" - command ("createLocator()");
@@ -43,6 +43,8 @@ global proc string makeNewJoint(string $args)
 global proc string createJointTool()
 {
     string $createJointTool =`JointTool`;
+    refresh;
+
     return $createJointTool;
 }
 
@@ -54,9 +56,11 @@ global proc string[] createJointOnSelection()
     int $count = 0;
 
     select -cl;
+    refresh;
 
     // Iterate through the selection
-    for ($object in $selection) {
+    for ($object in $selection)
+    {
         // Get the position of the object
         float $pos[] = `xform -q -ws -t $object`;
 
@@ -66,6 +70,8 @@ global proc string[] createJointOnSelection()
         {
             parent -w $jointName[$count];
         }
+
+        $count++;
     }
 
     return $jointName;
@@ -79,9 +85,11 @@ global proc string createJointOnCenter()
     int $count = size($selected);
 
     select -cl;
+    refresh;
 
     // Loop through the selected objects and get their world space position
-    for ($i = 0; $i < $count; $i++) {
+    for ($i = 0; $i < $count; $i++)
+    {
         float $translation[] = `xform -q -ws -t $selected[$i]`;
         $centroid += <<$translation[0], $translation[1], $translation[2]>>;
     }
@@ -91,7 +99,11 @@ global proc string createJointOnCenter()
 
     // Create a joint at the centroid position
     string $jointName = `joint -p ($centroid.x) ($centroid.y) ($centroid.z)`;
-    parent -w $jointName;
+
+    if(size(`listRelatives -p $jointName`) != 0)
+    {
+        parent -w $jointName;
+    }
 
     return $jointName;
 }
@@ -100,6 +112,9 @@ global proc string createJointChainOnSelection()
 {
     string $selection[] = `ls -sl`;
     string $jointName;
+
+    select -cl;
+    refresh;
 
     // Iterate through the selection
     for ($object in $selection)
@@ -112,25 +127,62 @@ global proc string createJointChainOnSelection()
         return $jointName;
     }
 
-
 }
 
-global proc string createJointBwTwoPoints()
+global proc string[] createJointBwTwoPoints(int $jointAmount)
 {
+    string $selected[] = `ls -sl`; // Get the selected objects
+    vector $centroid[];
+    string $jointName[];
+
+    select -cl;
+    refresh;
+
+    if(size($selected) < 1)
+    {
+        error("Please select 2 objects");
+    }
+    else
+    {
+        // Loop through the selected objects and get their world space position
+        for ($i = 0; $i < `size($selected)`; $i++)
+        {
+            $centroid[$i] = `xform -q -ws -t $selected[$i]`;
+        }
+
+        vector $distance = $centroid[1] - $centroid[0];
+
+        for($i = 0;$i < $jointAmount;$i++)
+        {
+            $jointName[$i] = `joint -p ((($distance.x) * ($i + 1)) / $jointAmount) ((($distance.y) * ($i + 1)) / $jointAmount) ((($distance.z) * ($i + 1)) / $jointAmount)`;
+        }
+
+        return $jointName;
+    }
+
     return "";
 }
 
 
 global proc string createLocator()
 {
-    return `spaceLocator -p 0 0 0`;
+    string $createLocatorTool = `spaceLocator -p 0 0 0`;
+
+    select -cl;
+    refresh;
+
+    return $createLocatorTool;
 }
 
 
-global proc string createLocatorOnSelection()
+global proc string[] createLocatorOnSelection()
 {
     string $selection[] = `ls -sl`;
-    string $locatorName;
+    string $locatorName[];
+    int $count = 0;
+
+    select -cl;
+    refresh;
 
     // Iterate through the selection
     for ($object in $selection)
@@ -138,14 +190,46 @@ global proc string createLocatorOnSelection()
         // Get the position of the object
         float $pos[] = `xform -q -ws -t $object`;
 
-        // Create a new locator at the object position
-        $locatorName = `spaceLocator -p $pos[0] $pos[1] $pos[2]`;
-        return $locatorName;
+        // Create a new joint at the object position
+        $locatorName[$count] = `joint -p $pos[0] $pos[1] $pos[2]`;
+        if(size(`listRelatives -p $locatorName[$count]`) != 0)
+        {
+            parent -w $locatorName[$count];
+        }
+
+        $count++;
     }
+
+    return $locatorName;
 }
 
 
 global proc string createLocatorOnCenter()
 {
-    return "";
+    string $selected[] = `ls -sl`; // Get the selected objects
+    vector $centroid = <<0, 0, 0>>;
+    int $count = size($selected);
+
+    select -cl;
+    refresh;
+
+    // Loop through the selected objects and get their world space position
+    for ($i = 0; $i < $count; $i++)
+    {
+        float $translation[] = `xform -q -ws -t $selected[$i]`;
+        $centroid += <<$translation[0], $translation[1], $translation[2]>>;
+    }
+
+    // Calculate the centroid position
+    $centroid /= $count;
+
+    // Create a joint at the centroid position
+    string $locatorName = `joint -p ($centroid.x) ($centroid.y) ($centroid.z)`;
+
+    if(size(`listRelatives -p $locatorName`) != 0)
+    {
+        parent -w $locatorName;
+    }
+
+    return $locatorName;
 }
