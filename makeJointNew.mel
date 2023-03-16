@@ -1,145 +1,151 @@
-    /*
-        makeNewJoint("");
-    */
+/*
+    Make New Joint [0.0.2]
 
-    global proc string makeNewJoint(string $args)
+    Script by : Nikhil Ramchandani (3D rigger)
+
+    Run command :
+    makeNewJoint("");
+*/
+
+global proc string makeNewJoint(string $args)
+{
+    if (`window -exists makeNewJoint_UI`)
     {
-        if (`window -exists makeNewJoint_UI`)
+        deleteUI makeNewJoint_UI;
+    }
+
+    string $window = `window -title "makeNewJoint" makeNewJoint_UI`;
+
+    columnLayout -adjustableColumn true;
+    button -label "Create Joint Tool" -command ("createJointTool()");
+
+    separator -style "single" -height 10;
+    button -aop 1 -label "Create joint on selection" - command ("createJointOnSelection()");
+    button -aop 1 -label "Create a joint on center of selection" -command ("createJointOnCenter()");
+    button -aop 1 -label "Create joint chain on selection" -command ("createJointChainOnSelection()");
+    button -aop 1 -label "Create joint chain between two points" -command ("createJointBwTwoPoints()");
+
+    separator -style "single" -height 10;
+    button -aop 1 -label "Create locator" - command ("createLocator()");
+    button -aop 1 -label "Create locator on selection" - command ("createLocatorOnSelection()");
+    button -aop 1 -label "Create a locator on center of selection" -command ("createLocatorOnCenter()");
+
+    separator -style "single" -height 10;
+    button -aop 1 -bgc 1 0 0 -label "Close" -command ("deleteUI -window " + $window);
+
+    setParent ..;
+    showWindow $window;
+
+    return "Opened makeNewJoint";
+}
+
+
+global proc string createJointTool()
+{
+    string $createJointTool =`JointTool`;
+    return $createJointTool;
+}
+
+
+global proc string[] createJointOnSelection()
+{
+    string $selection[] = `ls -sl`;
+    string $jointName[];
+    int $count = 0;
+
+    select -cl;
+
+    // Iterate through the selection
+    for ($object in $selection) {
+        // Get the position of the object
+        float $pos[] = `xform -q -ws -t $object`;
+
+        // Create a new joint at the object position
+        $jointName[$count] = `joint -p $pos[0] $pos[1] $pos[2]`;
+        if(size(`listRelatives -p $jointName[$count]`) != 0)
         {
-            deleteUI makeNewJoint_UI;
+            parent -w $jointName[$count];
         }
-
-        string $window = `window -title "makeNewJoint" makeNewJoint_UI`;
-
-        columnLayout -adjustableColumn true;
-        button -label "Create Joint Tool" -command ("createJointTool()");
-
-        separator -style "single" -height 10;
-        button -aop 1 -label "Create joint on selection" - command ("createJointOnSelection()");
-        button -aop 1 -label "Create a joint on center of selection" -command ("createJointOnCenter()");
-        button -aop 1 -label "Create joint chain on selection" -command ("createJointChainOnSelection()");
-        button -aop 1 -label "Create joint chain between two points" -command ("createJointBwTwoPoints()");
-
-        separator -style "single" -height 10;
-        button -aop 1 -label "Create locator" - command ("createLocator()");
-        button -aop 1 -label "Create locator on selection" - command ("createLocatorOnSelection()");
-        button -aop 1 -label "Create a locator on center of selection" -command ("createLocatorOnCenter()");
-
-        separator -style "single" -height 10;
-        button -aop 1 -bgc 1 0 0 -label "Close" -command ("deleteUI -window " + $window);
-
-        setParent ..;
-        showWindow $window;
-
-        return "Opened makeNewJoint";
     }
 
+    return $jointName;
+}
 
-    global proc createJointTool()
-    {
-        JointTool;
+
+global proc string createJointOnCenter()
+{
+    string $selected[] = `ls -sl`; // Get the selected objects
+    vector $centroid = <<0, 0, 0>>;
+    int $count = size($selected);
+
+    select -cl;
+
+    // Loop through the selected objects and get their world space position
+    for ($i = 0; $i < $count; $i++) {
+        float $translation[] = `xform -q -ws -t $selected[$i]`;
+        $centroid += <<$translation[0], $translation[1], $translation[2]>>;
     }
 
+    // Calculate the centroid position
+    $centroid /= $count;
 
-    global proc string[] createJointOnSelection()
+    // Create a joint at the centroid position
+    string $jointName = `joint -p ($centroid.x) ($centroid.y) ($centroid.z)`;
+    parent -w $jointName;
+
+    return $jointName;
+}
+
+global proc string createJointChainOnSelection()
+{
+    string $selection[] = `ls -sl`;
+    string $jointName;
+
+    // Iterate through the selection
+    for ($object in $selection)
     {
-        string $selection[] = `ls -sl`;
-        string $jointName[];
-        int $count = 0;
+        // Get the position of the object
+        float $pos[] = `xform -q -ws -t $object`;
 
-        select -cl;
-
-        // Iterate through the selection
-        for ($object in $selection) {
-            // Get the position of the object
-            float $pos[] = `xform -q -ws -t $object`;
-                
-            // Create a new joint at the object position
-            $jointName[$count] = `joint -p $pos[0] $pos[1] $pos[2]`;
-            if(size(`listRelatives -p $jointName[$count]`) != 0)
-            {
-                parent -w $jointName[$count];
-            }
-        }
-
+        // Create a new joint at the object position
+        $jointName = `joint -p $pos[0] $pos[1] $pos[2]`;
         return $jointName;
     }
 
 
-    global proc string createJointOnCenter()
+}
+
+global proc string createJointBwTwoPoints()
+{
+    return "";
+}
+
+
+global proc string createLocator()
+{
+    return `spaceLocator -p 0 0 0`;
+}
+
+
+global proc string createLocatorOnSelection()
+{
+    string $selection[] = `ls -sl`;
+    string $locatorName;
+
+    // Iterate through the selection
+    for ($object in $selection)
     {
-        string $selected[] = `ls -sl`; // Get the selected objects
-        vector $centroid = <<0, 0, 0>>;
-        int $count = size($selected);
+        // Get the position of the object
+        float $pos[] = `xform -q -ws -t $object`;
 
-        select -cl;
-
-        // Loop through the selected objects and get their world space position
-        for ($i = 0; $i < $count; $i++) {
-            float $translation[] = `xform -q -ws -t $selected[$i]`;
-            $centroid += <<$translation[0], $translation[1], $translation[2]>>;
-        }
-
-        // Calculate the centroid position
-        $centroid /= $count;
-
-        // Create a joint at the centroid position
-        string $jointName = `joint -p ($centroid.x) ($centroid.y) ($centroid.z)`;
-        parent -w $jointName;
-
-        return $jointName;
+        // Create a new locator at the object position
+        $locatorName = `spaceLocator -p $pos[0] $pos[1] $pos[2]`;
+        return $locatorName;
     }
-
-    global proc string createJointChainOnSelection()
-    {
-        string $selection[] = `ls -sl`;
-        string $jointName;
-
-        // Iterate through the selection
-        for ($object in $selection)
-        {
-            // Get the position of the object
-            float $pos[] = `xform -q -ws -t $object`;
-
-            // Create a new joint at the object position
-            $jointName = `joint -p $pos[0] $pos[1] $pos[2]`;
-            return $jointName;
-        }
+}
 
 
-    }
-
-    global proc string createJointBwTwoPoints()
-    {
-        return "";
-    }
-
-
-    global proc string createLocator()
-    {
-        return `spaceLocator -p 0 0 0`;
-    }
-
-
-    global proc string createLocatorOnSelection()
-    {
-        string $selection[] = `ls -sl`;
-        string $locatorName;
-
-        // Iterate through the selection
-        for ($object in $selection)
-        {
-            // Get the position of the object
-            float $pos[] = `xform -q -ws -t $object`;
-
-            // Create a new locator at the object position
-            $locatorName = `spaceLocator -p $pos[0] $pos[1] $pos[2]`;
-            return $locatorName;
-        }
-    }
-
-
-    global proc string createLocatorOnCenter()
-    {
-        return "";
-    }
+global proc string createLocatorOnCenter()
+{
+    return "";
+}
