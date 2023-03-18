@@ -1,8 +1,8 @@
  /*
-    Make New Joint [0.0.4]
+    Make New Joint [0.0.5]
 
     Script by : Nikhil Ramchandani (3D rigger)
-    Connect with me on LinkedIn : https://www.linkedin.com/nikramchandani
+    Connect with me on LinkedIn : https://www.linkedin.com/in/nikramchandani/
 
     Run command :
     makeNewJoint("");
@@ -135,28 +135,35 @@ global proc string[] createJointChainOnSelection()
 global proc string[] createJointBwTwoPoints(int $jointAmount)
 {
     string $selected[] = `ls -sl`; // Get the selected objects
-    vector $centroid[];
+    vector $pos[];
     string $jointName[];
 
     select -cl;
     refresh;
 
-        // Loop through the selected objects and get their world space position
-        for ($i = 0; $i < `size($selected)`; $i++)
-        {
-            $centroid[$i] = `xform -q -ws -t $selected[$i]`;
-        }
+    // Loop through the selected objects and get their world space position
+    for ($i = 0; $i < `size($selected)`; $i++)
+    {
+        $pos[$i] = `xform -q -ws -t $selected[$i]`;
+    }
 
-        // getting the distnace between two objects
-        vector $distance = $centroid[1] - $centroid[0];
+    // getting the distance between two objects
+    vector $distance = $pos[1] - $pos[0];
+    float $distanceX = $distance.x;
+    float $distanceY = $distance.y;
+    float $distanceZ = $distance.z;
 
-        // placing each object at eual distance from each other between two points
-        for($i = 0;$i < $jointAmount;$i++)
-        {
-            $jointName[$i] = `joint -p ((($distance.x) * ($i + 1)) / $jointAmount) ((($distance.y) * ($i + 1)) / $jointAmount) ((($distance.z) * ($i + 1)) / $jointAmount)`;
-        }
+    if($distanceX < 0) $distanceX = $distanceX * -1;
+    if($distanceY < 0) $distanceY = $distanceY * -1;
+    if($distanceZ < 0) $distanceZ = $distanceZ * -1;
 
-        return $jointName;
+    // placing each object at eual distance from each other between two points
+    for($i = 0;$i < $jointAmount;$i++)
+    {
+        $jointName[$i] = `joint -p ($distanceX + (($distanceX * $i) / ($jointAmount - 1))) ($distanceY + (($distanceY * $i) / ($jointAmount - 1))) ($distanceZ + (($distanceZ * $i) / ($jointAmount - 1)))`;
+    }
+
+    return $jointName;
 }
 
 
