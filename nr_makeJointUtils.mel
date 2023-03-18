@@ -1,5 +1,5 @@
  /*
-    Make Joint Utils [1.0.0]
+    Make Joint Utils [1.0.1]
 
     Script by : Nikhil Ramchandani (3D rigger)
     Connect with me on LinkedIn : https://www.linkedin.com/in/nikramchandani/
@@ -24,7 +24,7 @@ global proc string nr_makJointUtils_UI(string $args)
     button -aop 1 -label "Create joint on selection" - command ("createJointOnSelection()");
     button -aop 1 -label "Create a joint on center of selection" -command ("createJointOnCenter()");
     button -aop 1 -label "Create joint chain on selection" -command ("createJointChainOnSelection()");
-    button -aop 1 -label "Create joint chain between two points" -command ("createJointBwTwoPoints(\"5\")");
+    button -aop 1 -label "Create joint chain between two points" -command ("createJointBwTwoPoints()");
 
     separator -style "single" -height 10;
     button -aop 1 -label "Create locator" - command ("createLocator()");
@@ -132,8 +132,21 @@ global proc string[] createJointChainOnSelection()
     return $jointName;
 }
 
-global proc string[] createJointBwTwoPoints(int $jointAmount)
+global proc string[] createJointBwTwoPoints()
 {
+    int $jointAmount;
+    string $result = `promptDialog
+                    -title "Create Joints"
+                    -message "Enter no of joints:"
+                    -button "OK" -button "Cancel"
+                    -defaultButton "OK" -cancelButton "Cancel"
+                    -dismissString "Cancel"`;
+
+    if ($result == "OK") 
+    {
+        $jointAmount = `promptDialog -query -text`;
+    }
+
     string $selected[] = `ls -sl`; // Get the selected objects
     vector $pos[];
     string $jointName[];
