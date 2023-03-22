@@ -1,0 +1,53 @@
+/***********************************
+Scene Optimizer 0.0.1
+
+- remove unknown Plug-In
+- clear shading clutter
+- remove unknown nodes
+- optimize skin clusters
+************************************ */
+
+global proc nr_sceneOptimizer_UI()
+{
+    if (`window -exists nr_sceneOptimizer_UI`)
+    {
+        deleteUI nr_sceneOptimizer_UI;
+    }
+
+    string $window = `window -title "Scene Optimizer" nr_sceneOptimizer_UI`;
+
+    columnLayout -adjustableColumn true;
+}
+
+
+global proc string[] nr_sceneOptimizer_unknownPlugins()
+{
+    string $unknownPlugins[] = `unknownPlugin -q -l`;
+    if(`size(unknownPlugins)` > 0)
+    {
+        for($unknownPlugin in $unknownPlugins)
+        {
+            unknownPlugin -r $unknownPlugin;
+        }
+    }
+
+    return $unknownPlugins;
+}
+
+
+global proc string[] nr_sceneOptimizer_shadingClutter()
+{
+    return {};
+}
+
+
+global proc string[] nr_sceneOptimizer_unknownNodes()
+{
+    return {};
+}
+
+
+global proc string[] nr_sceneOptimizer_skinCluster()
+{
+    return {};
+}
