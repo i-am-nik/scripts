@@ -1,5 +1,5 @@
  /*
-    Make Joint Utils [1.0.1]
+    Make Joint Utils [1.0.2]
 
     Script by : Nikhil Ramchandani (3D rigger)
     Connect with me on LinkedIn : https://www.linkedin.com/in/nikramchandani/
@@ -134,7 +134,7 @@ global proc string[] createJointChainOnSelection()
 
 global proc string[] createJointBwTwoPoints()
 {
-    int $jointAmount;
+    float $jointAmount;
     string $result = `promptDialog
                     -title "Create Joints"
                     -message "Enter no of joints:"
@@ -147,36 +147,25 @@ global proc string[] createJointBwTwoPoints()
         $jointAmount = `promptDialog -query -text`;
     }
 
-    string $selected[] = `ls -sl`; // Get the selected objects
-    vector $pos[];
-    string $jointName[];
+    string $selection[] = `ls -selection`;
+    float $inc = (1/float($jointAmount));
 
     select -cl;
-    refresh;
 
-    // Loop through the selected objects and get their world space position
-    for ($i = 0; $i < `size($selected)`; $i++)
+    for($i=0;$i<=$jointAmount;$i++)
     {
-        $pos[$i] = `xform -q -ws -t $selected[$i]`;
+        string $jointName = `joint -n ("joint" + $i)`;
+
+        string $tempConstraintName = $jointName + "parentConstraint";
+        parentConstraint -n $tempConstraintName $selection[0] $selection [1] $jointName;
+    
+        setAttr ($tempConstraintName + "."  + $selection[0] + "W0") (0 + ($inc * $i));
+        setAttr ($tempConstraintName + "."  + $selection[1] + "W1") (1 - ($inc * $i));
+
+        delete $tempConstraintName;
     }
 
-    // getting the distance between two objects
-    vector $distance = $pos[1] - $pos[0];
-    float $distanceX = $distance.x;
-    float $distanceY = $distance.y;
-    float $distanceZ = $distance.z;
-
-    if($distanceX < 0) $distanceX = $distanceX * -1;
-    if($distanceY < 0) $distanceY = $distanceY * -1;
-    if($distanceZ < 0) $distanceZ = $distanceZ * -1;
-
-    // placing each object at eual distance from each other between two points
-    for($i = 0;$i < $jointAmount;$i++)
-    {
-        $jointName[$i] = `joint -p ($distanceX + (($distanceX * $i) / ($jointAmount - 1))) ($distanceY + (($distanceY * $i) / ($jointAmount - 1))) ($distanceZ + (($distanceZ * $i) / ($jointAmount - 1)))`;
-    }
-
-    return $jointName;
+    return {""};
 }
 
 
