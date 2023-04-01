@@ -1,14 +1,13 @@
  /*
-    Make Joint Utils [1.0.2]
+    Make Joint Utils [1.0.3]
 
     Script by : Nikhil Ramchandani (3D rigger)
     Connect with me on LinkedIn : https://www.linkedin.com/in/nikramchandani/
-
-    Run command :
-    nr_makJointUtils_UI("");
 */
 
-global proc string nr_makJointUtils_UI(string $args)
+nr_makeJointUtils_UI;
+
+global proc string nr_makeJointUtils_UI()
 {
     if (`window -exists nr_makJointUtils_UI`)
     {
@@ -18,18 +17,18 @@ global proc string nr_makJointUtils_UI(string $args)
     string $window = `window -title "makJointUtils" nr_makJointUtils_UI`;
 
     columnLayout -adjustableColumn true;
-    button -label "Create Joint Tool" -command ("createJointTool()");
-
+        
     separator -style "single" -height 10;
-    button -aop 1 -label "Create joint on selection" - command ("createJointOnSelection()");
-    button -aop 1 -label "Create a joint on center of selection" -command ("createJointOnCenter()");
-    button -aop 1 -label "Create joint chain on selection" -command ("createJointChainOnSelection()");
-    button -aop 1 -label "Create joint chain between two points" -command ("createJointBwTwoPoints()");
+    button -label "Create Joint" -command ("createJointTool()");
+    button -aop 1 -label "Joint on selection" - command ("createJointOnSelection()");
+    button -aop 1 -label "Joint on center of selection" -command ("createJointOnCenter()");
+    button -aop 1 -label "Joint chain on election" -command ("createJointChainOnSelection()");
+    button -aop 1 -label "Joint chain between two points" -command ("createJointBwTwoPoints()");
 
     separator -style "single" -height 10;
     button -aop 1 -label "Create locator" - command ("createLocator()");
-    button -aop 1 -label "Create locator on selection" - command ("createLocatorOnSelection()");
-    button -aop 1 -label "Create a locator on center of selection" -command ("createLocatorOnCenter()");
+    button -aop 1 -label "Locator on selection" - command ("createLocatorOnSelection()");
+    button -aop 1 -label "Locator on center of selection" -command ("createLocatorOnCenter()");
 
     separator -style "single" -height 10;
     button -aop 1 -label "Create Cluster" -command ("createCluster()");
@@ -40,7 +39,7 @@ global proc string nr_makJointUtils_UI(string $args)
     setParent ..;
     showWindow $window;
 
-    return "Opened nr_makJointUtils";
+    return "nr_makeJointUtils";
 }
 
 
