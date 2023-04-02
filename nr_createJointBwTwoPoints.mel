@@ -1,0 +1,49 @@
+/*  
+    Create joint chain between two objects
+    
+    Script by : Nikhil Ramchandani (3D rigger)
+    Connect with me on LinkedIn : https://www.linkedin.com/in/nikramchandani/
+*/
+
+global proc string[] createJointBwTwoPoints()
+{
+    float $jointAmount;
+    string $jointsCreated[];
+    string $result = `promptDialog
+                    -title "Create Joints"
+                    -message "Enter no of joints:"
+                    -button "OK" -button "Cancel"
+                    -defaultButton "OK" -cancelButton "Cancel"
+                    -dismissString "Cancel"`;
+
+    if ($result == "OK") 
+    {
+        $jointAmount = `promptDialog -query -text`;
+    }
+
+    string $selection[] = `ls -selection`;
+    float $inc = (1/float($jointAmount));
+
+    select -cl;
+
+    for($i=0;$i<=$jointAmount;$i++)
+    {
+        string $jointName = `joint -n ("joint" + ($i + 1))`;
+        $jointsCreated[$i] = $jointName;
+
+        string $tempConstraintName = $jointName + "pointConstraint";
+        pointConstraint -n $tempConstraintName $selection[0] $selection [1] $jointName;
+    
+        setAttr ($tempConstraintName + "."  + $selection[0] + "W0") (1 - ($inc * $i));
+        setAttr ($tempConstraintName + "."  + $selection[1] + "W1") (0 + ($inc * $i));
+
+        delete $tempConstraintName;
+    }
+
+    joint -e -ch -oj yzx -sao yup $jointsCreated[0];
+    select $jointsCreated[0];
+
+    return $jointsCreated;
+}
+
+createJointBwTwoPoints();
