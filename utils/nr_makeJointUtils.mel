@@ -14,7 +14,7 @@ global proc string nr_makeJointUtils_UI()
         deleteUI nr_makJointUtils_UI;
     }
 
-    string $window = `window -title "makJointUtils" nr_makJointUtils_UI`;
+    string $window = `window -title "Rig Utils" nr_makJointUtils_UI`;
 
     columnLayout -adjustableColumn true;
         
