@@ -1,0 +1,60 @@
+/*
+    Smoke Trail 
+
+    Script by : Nikhil Ramchandani (3D rigger)
+    Connect with me on LinkedIn : https://www.linkedin.com/in/nikRamchandani/
+*/
+
+global proc smokeTrail()
+{
+    // creating a control and emitter for trail
+    string $smokeTrailCtrl[] = `circle -nr 0 1 0 -n smokeTrail_ctrl`;
+    select -cl;
+    string $trailEmitter[] = `emitter -n "smokeTrailEmitter"`;
+    parent $trailEmitter[0] $smokeTrailCtrl[0];
+
+    // creating particles and nucleus
+    string $trailParticle[] = `nParticle -n "trailParticle"`;
+    string $nucleus =  "nucleus1";
+
+    connectDynamic -em $trailEmitter[0] $trailParticle[0];
+
+    // setting up emitter
+    setAttr ($trailEmitter[0] + ".visibility") 0;
+    setAttr ($trailEmitter[0] + ".rate") 500;
+
+    // setting up particles
+    setAttr ($trailParticle[0] + "Shape.lifespanMode") 1;
+    setAttr ($trailParticle[0] + "Shape.particleRenderType") 8;
+    setAttr ($trailParticle[0] + "Shape.collide") 0;
+    setAttr ($trailParticle[0] + "Shape.radius") .5;
+
+    // setting up nucleus
+    setAttr ($nucleus + ".gravity") 0;
+    setAttr ($nucleus + ".airDensity") 10;
+    setAttr ($nucleus + ".windDirectionX") 0;
+
+    // adding additional attr on ctrl
+    addAttr -ln "trail"  -at "enum" -en "__________:"  |smokeTrail_ctrl;
+    setAttr -e-channelBox true smokeTrail_ctrl.trail;
+    
+    addAttr -ln "trailRadius"  -at double  -min 0 -dv .5 |smokeTrail_ctrl;
+    setAttr -e-keyable true |smokeTrail_ctrl.trailRadius;
+
+    addAttr -ln "trailLength"  -at double  -min 0 -dv 1 |smokeTrail_ctrl;
+    setAttr -e-keyable true |smokeTrail_ctrl.trailLength;
+
+    addAttr -ln "trailVisbility"  -at "enum" -en "off:on:"  |smokeTrail_ctrl;
+    setAttr -e-keyable true |smokeTrail_ctrl.trailVisbility;
+
+    // connecting new attrs
+    connectAttr -f smokeTrail_ctrl.trailRadius trailParticleShape.radius;
+    connectAttr -f smokeTrail_ctrl.trailLength trailParticleShape.lifespan;
+    connectAttr -f smokeTrail_ctrl.trailVisbility trailParticle.visibility;
+
+    group -em -n "smokeTrail_GRP" smokeTrail_ctrl trailParticle nucleus1;
+}
+
+
+
+smokeTrail;
