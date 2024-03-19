@@ -2,7 +2,12 @@
     Create joint chain between two objects
     
     Script by : Nikhil Ramchandani (3D rigger)
-    Connect with me on LinkedIn : https://www.linkedin.com/in/nikramchandani/
+    Connect with me on LinkedIn : https://www.linkedin.com/in/nikrigs
+
+    To run this script:
+    Step 1. Slect two object you want chain joint in between
+    Step 2. Copy the entire code and run this line in script editor
+            createJointBwTwoPoints();
 */
 
 global proc string[] createJointBwTwoPoints()
@@ -28,7 +33,7 @@ global proc string[] createJointBwTwoPoints()
 
     for($i=0;$i<=$jointAmount;$i++)
     {
-        string $jointName = `joint -n ("joint" + ($i + 1))`;
+        string $jointName = `joint`;
         $jointsCreated[$i] = $jointName;
 
         string $tempConstraintName = $jointName + "pointConstraint";
@@ -45,5 +50,3 @@ global proc string[] createJointBwTwoPoints()
 
     return $jointsCreated;
 }
-
-createJointBwTwoPoints();
