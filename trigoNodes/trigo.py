@@ -1,3 +1,8 @@
+'''TODO:
+    - Handling Undefined Values: You are returning float('inf') for undefined trigonometric values. Ensure that the consuming code handles these appropriately, as Maya might not understand float('inf') and could require None or another representation.
+    - Test all the nodes and all the values thoroughly
+'''
+
 import maya.OpenMaya as om
 import maya.OpenMayaMPx as ommpx
 
