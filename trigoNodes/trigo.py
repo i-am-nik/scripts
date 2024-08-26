@@ -1,9 +1,3 @@
-''' TODO:
-    - Make test cases for pure maths functions and find error rate in in approx values
-    - Test this code in different conditions in maya
-    - Make user manual and report of what it is exactly doing
-'''
-
 import maya.OpenMaya as om
 import maya.OpenMayaMPx as ommpx
 
@@ -212,6 +206,13 @@ class BaseTrigoNode(ommpx.MPxNode):
         BaseTrigoNode.addAttribute(BaseTrigoNode.outputAttr)
         BaseTrigoNode.attributeAffects(BaseTrigoNode.inputAttr, BaseTrigoNode.outputAttr)
 
+    @staticmethod
+    def creator():
+        """
+        Creator method to be used by Maya to create an instance of the node.
+        """
+        return BaseTrigoNode()
+
 # Custom nodes for each trigonometric function
 class SinNode(BaseTrigoNode):
     """
@@ -238,202 +239,162 @@ class SinNode(BaseTrigoNode):
             outputHandle.setClean()
         else:
             return om.kUnknownParameter
+        return None  # Important: Returning None for successful completion
+
+    kNodeId = om.MTypeId(0x78000)  # Replace with a unique ID
+
+    @staticmethod
+    def creator():
+        """
+        Creator method to be used by Maya to create an instance of the node.
+        """
+        return ommpx.asMPxPtr(SinNode())
 
 class CosNode(BaseTrigoNode):
     """
     Custom node to compute the cosine of an angle.
-
-    Attributes:
-    kNodeName (node name): Unique name for the node.
     """
     kNodeName = "cosNode"
+    kNodeId = om.MTypeId(0x78001)  # Replace with a unique ID
 
     def compute(self, plug, dataBlock):
-        """
-        Compute the cosine of the input angle and output the result.
-
-        Parameters:
-        plug (MPlug): The plug that is being evaluated.
-        dataBlock (MDataBlock): The data block containing the input/output data handles.
-        """
         if plug == CosNode.outputAttr:
-            # Get the input angle value
             inputValue = dataBlock.inputValue(CosNode.inputAttr).asFloat()
-            # Calculate the cosine of the input angle
             result = approximate_cos(inputValue)
-            # Set the output value to the calculated cosine
             outputHandle = dataBlock.outputValue(CosNode.outputAttr)
             outputHandle.setFloat(result)
-            # Mark the output handle as clean
             outputHandle.setClean()
         else:
             return om.kUnknownParameter
+        return None  # Important: Returning None for successful completion
+
+    @staticmethod
+    def creator():
+        """
+        Creator method to be used by Maya to create an instance of the node.
+        """
+        return ommpx.asMPxPtr(CosNode())
 
 class TanNode(BaseTrigoNode):
     """
     Custom node to compute the tangent of an angle.
-
-    Attributes:
-    kNodeName (node name): Unique name for the node.
     """
     kNodeName = "tanNode"
+    kNodeId = om.MTypeId(0x78002)  # Replace with a unique ID
 
     def compute(self, plug, dataBlock):
-        """
-        Compute the tangent of the input angle and output the result.
-
-        Parameters:
-        plug (MPlug): The plug that is being evaluated.
-        dataBlock (MDataBlock): The data block containing the input/output data handles.
-        """
         if plug == TanNode.outputAttr:
-            # Get the input angle value
             inputValue = dataBlock.inputValue(TanNode.inputAttr).asFloat()
-            # Calculate the tangent of the input angle
             result = approximate_tan(inputValue)
-            # Set the output value to the calculated tangent
             outputHandle = dataBlock.outputValue(TanNode.outputAttr)
             outputHandle.setFloat(result)
-            # Mark the output handle as clean
             outputHandle.setClean()
         else:
             return om.kUnknownParameter
+        return None  # Important: Returning None for successful completion
+
+    @staticmethod
+    def creator():
+        """
+        Creator method to be used by Maya to create an instance of the node.
+        """
+        return ommpx.asMPxPtr(TanNode())
 
 class CotNode(BaseTrigoNode):
     """
     Custom node to compute the cotangent of an angle.
-
-    Attributes:
-    kNodeName (node name): Unique name for the node.
     """
     kNodeName = "cotNode"
+    kNodeId = om.MTypeId(0x78003)  # Replace with a unique ID
 
     def compute(self, plug, dataBlock):
-        """
-        Compute the cotangent of the input angle and output the result.
-
-        Parameters:
-        plug (MPlug): The plug that is being evaluated.
-        dataBlock (MDataBlock): The data block containing the input/output data handles.
-        """
         if plug == CotNode.outputAttr:
-            # Get the input angle value
             inputValue = dataBlock.inputValue(CotNode.inputAttr).asFloat()
-            # Calculate the cotangent of the input angle
             result = approximate_cot(inputValue)
-            # Set the output value to the calculated cotangent
             outputHandle = dataBlock.outputValue(CotNode.outputAttr)
             outputHandle.setFloat(result)
-            # Mark the output handle as clean
             outputHandle.setClean()
         else:
             return om.kUnknownParameter
+        return None  # Important: Returning None for successful completion
+
+    @staticmethod
+    def creator():
+        """
+        Creator method to be used by Maya to create an instance of the node.
+        """
+        return ommpx.asMPxPtr(CotNode())
 
 class SecNode(BaseTrigoNode):
     """
     Custom node to compute the secant of an angle.
-
-    Attributes:
-    kNodeName (node name): Unique name for the node.
     """
     kNodeName = "secNode"
+    kNodeId = om.MTypeId(0x78004)  # Replace with a unique ID
 
     def compute(self, plug, dataBlock):
-        """
-        Compute the secant of the input angle and output the result.
-
-        Parameters:
-        plug (MPlug): The plug that is being evaluated.
-        dataBlock (MDataBlock): The data block containing the input/output data handles.
-        """
         if plug == SecNode.outputAttr:
-            # Get the input angle value
             inputValue = dataBlock.inputValue(SecNode.inputAttr).asFloat()
-            # Calculate the secant of the input angle
             result = approximate_sec(inputValue)
-            # Set the output value to the calculated secant
             outputHandle = dataBlock.outputValue(SecNode.outputAttr)
             outputHandle.setFloat(result)
-            # Mark the output handle as clean
             outputHandle.setClean()
         else:
             return om.kUnknownParameter
+        return None  # Important: Returning None for successful completion
+
+    @staticmethod
+    def creator():
+        """
+        Creator method to be used by Maya to create an instance of the node.
+        """
+        return ommpx.asMPxPtr(SecNode())
 
 class CscNode(BaseTrigoNode):
     """
     Custom node to compute the cosecant of an angle.
-
-    Attributes:
-    kNodeName (node name): Unique name for the node.
     """
     kNodeName = "cscNode"
+    kNodeId = om.MTypeId(0x78005)  # Replace with a unique ID
 
     def compute(self, plug, dataBlock):
-        """
-        Compute the cosecant of the input angle and output the result.
-
-        Parameters:
-        plug (MPlug): The plug that is being evaluated.
-        dataBlock (MDataBlock): The data block containing the input/output data handles.
-        """
         if plug == CscNode.outputAttr:
-            # Get the input angle value
             inputValue = dataBlock.inputValue(CscNode.inputAttr).asFloat()
-            # Calculate the cosecant of the input angle
             result = approximate_csc(inputValue)
-            # Set the output value to the calculated cosecant
             outputHandle = dataBlock.outputValue(CscNode.outputAttr)
             outputHandle.setFloat(result)
-            # Mark the output handle as clean
             outputHandle.setClean()
         else:
             return om.kUnknownParameter
+        return None  # Important: Returning None for successful completion
 
-# Plugin initialization and uninitialization functions
-
-def maya_useNewAPI():
-    """
-    Indicates that the plugin uses Maya's Python API 2.0.
-    """
-    pass
+    @staticmethod
+    def creator():
+        """
+        Creator method to be used by Maya to create an instance of the node.
+        """
+        return ommpx.asMPxPtr(CscNode())
 
 def initializePlugin(mobject):
     """
     Initialize the plugin by registering each custom node.
-
-    Parameters:
-    mobject (MObject): The MObject representing the plugin.
     """
-    mplugin = ommpx.MFnPlugin(mobject, "Your Name", "1.0", "Any")
+    mplugin = ommpx.MFnPlugin(mobject)
 
     try:
         # Register each node with a unique ID
-        SinNode.kNodeId = om.MTypeId.nextId()
         mplugin.registerNode(SinNode.kNodeName, SinNode.kNodeId, SinNode.creator, SinNode.initialize, ommpx.MPxNode.kDependNode)
-        
-        CosNode.kNodeId = om.MTypeId.nextId()
         mplugin.registerNode(CosNode.kNodeName, CosNode.kNodeId, CosNode.creator, CosNode.initialize, ommpx.MPxNode.kDependNode)
-        
-        TanNode.kNodeId = om.MTypeId.nextId()
         mplugin.registerNode(TanNode.kNodeName, TanNode.kNodeId, TanNode.creator, TanNode.initialize, ommpx.MPxNode.kDependNode)
-        
-        CotNode.kNodeId = om.MTypeId.nextId()
         mplugin.registerNode(CotNode.kNodeName, CotNode.kNodeId, CotNode.creator, CotNode.initialize, ommpx.MPxNode.kDependNode)
-        
-        SecNode.kNodeId = om.MTypeId.nextId()
         mplugin.registerNode(SecNode.kNodeName, SecNode.kNodeId, SecNode.creator, SecNode.initialize, ommpx.MPxNode.kDependNode)
-        
-        CscNode.kNodeId = om.MTypeId.nextId()
         mplugin.registerNode(CscNode.kNodeName, CscNode.kNodeId, CscNode.creator, CscNode.initialize, ommpx.MPxNode.kDependNode)
     except RuntimeError as e:
-        om.MGlobal.displayError("Failed to register nodes")
+        om.MGlobal.displayError(f"Failed to register nodes: {e}")
 
 def uninitializePlugin(mobject):
     """
     Uninitialize the plugin by deregistering each custom node.
-
-    Parameters:
-    mobject (MObject): The MObject representing the plugin.
     """
     mplugin = ommpx.MFnPlugin(mobject)
 
@@ -445,4 +406,4 @@ def uninitializePlugin(mobject):
         mplugin.deregisterNode(SecNode.kNodeId)
         mplugin.deregisterNode(CscNode.kNodeId)
     except RuntimeError as e:
-        om.MGlobal.displayError("Failed to deregister nodes")
+        om.MGlobal.displayError(f"Failed to deregister nodes: {e}")
