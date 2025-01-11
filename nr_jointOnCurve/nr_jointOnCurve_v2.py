@@ -260,7 +260,14 @@ class JointCreatorUI(QtWidgets.QDialog):
     def get_joint_name(self,prefix,name,index,suffix,num_joints):
         len_joints = len(str(num_joints))
         name = f"{name}{(index+1):0{len_joints}d}"
-        result = prefix+'_'+name+'_'+suffix
+        if prefix and suffix:
+            result = prefix+'_'+name+'_'+suffix
+        elif prefix and not suffix:
+            result = prefix+'_'+name+suffix
+        elif not prefix and suffix:
+            result = prefix+name+'_'+suffix
+        else:
+            result = prefix+name+suffix
         return result
 
     def create_joints(self):
