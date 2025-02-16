@@ -76,7 +76,7 @@ class JointCreatorUI(QtWidgets.QDialog):
         self.layout().insertWidget(0, title_bar)
 
     def create_ui_elements(self):
-        #hyperlink
+        # Hyperlink
         self.hyperlink_label = QtWidgets.QLabel()
         self.hyperlink_label.setText('<a href="https://www.linkedin.com/in/nikrigs/">by Nikhil Ramchandani</a>')
         self.hyperlink_label.setOpenExternalLinks(True)  # Enable opening links in the default web browser
@@ -157,6 +157,7 @@ class JointCreatorUI(QtWidgets.QDialog):
         self.orient_type_layout.addWidget(self.orient_type_radio2)
         self.orient_type_radio_grp.addButton(self.orient_type_radio1)
         self.orient_type_radio_grp.addButton(self.orient_type_radio2)
+
         # Create joints button
         self.create_button = QtWidgets.QPushButton("Create Joints")
         self.create_button.clicked.connect(self.create_joints)
@@ -168,8 +169,8 @@ class JointCreatorUI(QtWidgets.QDialog):
         self.layout().addWidget(self.curve_button)
         self.layout().addWidget(self.num_joints_label)
         self.layout().addWidget(self.num_joints_spin)
-        self.layout().addLayout(self.naming_label_layout)  # Add the new horizontal layout
-        self.layout().addLayout(self.name_layout)  # Add the new horizontal layout
+        self.layout().addLayout(self.naming_label_layout) 
+        self.layout().addLayout(self.name_layout)
         self.layout().addWidget(self.example_label)
         self.layout().addWidget(self.radius_label)
         self.layout().addWidget(self.radius_input)
@@ -228,18 +229,14 @@ class JointCreatorUI(QtWidgets.QDialog):
 
         # Ensure there is an underscore between prefix-name and name-suffix
         if prefix and not prefix.endswith('_'):
-                prefix += '_'
-        else:
-            pass
+            prefix += '_'
         
         if suffix and not suffix.startswith('_'):
-                suffix = '_' + suffix
-        else:
-            pass
+            suffix = '_' + suffix
 
         # Update the example label
-        example_text = prefix+name+'*'+suffix
-        self.example_label.setText("Output: "+example_text)
+        example_text = prefix + name + '*' + suffix
+        self.example_label.setText("Output: " + example_text)
 
     def update_curve_selection(self):
         # Get the selected curves in Maya
@@ -257,17 +254,17 @@ class JointCreatorUI(QtWidgets.QDialog):
             self.curve_textbox.setText("No curve selected")
             self.num_joints_label.setText("Number of Joints:")
 
-    def get_joint_name(self,prefix,name,index,suffix,num_joints):
+    def get_joint_name(self, prefix, name, index, suffix, num_joints):
         len_joints = len(str(num_joints))
-        name = f"{name}{(index+1):0{len_joints}d}"
+        name = f"{name}{(index + 1):0{len_joints}d}"
         if prefix and suffix:
-            result = prefix+'_'+name+'_'+suffix
+            result = prefix + '_' + name + '_' + suffix
         elif prefix and not suffix:
-            result = prefix+'_'+name+suffix
+            result = prefix + '_' + name + suffix
         elif not prefix and suffix:
-            result = prefix+name+'_'+suffix
+            result = prefix + name + '_' + suffix
         else:
-            result = prefix+name+suffix
+            result = prefix + name + suffix
         return result
 
     def create_joints(self):
@@ -277,7 +274,7 @@ class JointCreatorUI(QtWidgets.QDialog):
             QtWidgets.QMessageBox.warning(self, "Error", "Please select a curve first.")
             return
         
-        # data from UI
+        # Data from UI
         num_joints = self.num_joints_spin.value()
         prefix = self.prefix_input.text()
         name = self.name_input.text()
@@ -289,11 +286,11 @@ class JointCreatorUI(QtWidgets.QDialog):
         curve_list = sel_curves.split(',')
         for curve_index in range(len(curve_list)):
             print(curve_list[curve_index])
-            curve_degree = cmds.getAttr(curve_list[curve_index]+'.degree')
-            curve_spans = cmds.getAttr(curve_list[curve_index]+'.spans')
+            curve_degree = cmds.getAttr(curve_list[curve_index] + '.degree')
+            curve_spans = cmds.getAttr(curve_list[curve_index] + '.spans')
             
-            curve_cvs = curve_degree+curve_spans
-            smooth_cvs = curve_cvs*num_joints
+            curve_cvs = curve_degree + curve_spans
+            smooth_cvs = curve_cvs * num_joints
 
             dup_curve = cmds.rebuildCurve(curve_list[curve_index], ch=True, rpo=False, rt=False, end=True, kr=False, kcp=False, kep=True, kt=False, s=smooth_cvs, d=True, tol=0.01)
             dup_curve_shade_node = cmds.listRelatives(dup_curve[0], shapes=True)
@@ -302,26 +299,24 @@ class JointCreatorUI(QtWidgets.QDialog):
             if cmds.ls(sl=True):
                 cmds.select(cl=True)
 
-            for i in range(num_joints+1):
-
-                joint_cv = (smooth_cvs/num_joints)*i
-                joint_pos = cmds.xform((dup_curve_shade_node[0]+'.controlPoints['+str(int(joint_cv))+']'), q=True, t=True)
-                joint_name.append(self.get_joint_name(prefix,name,(i+curve_index+(curve_index*num_joints)),suffix,num_joints))
-                joint_create = cmds.joint(n=joint_name[i], rad=radius, p=(joint_pos[0],joint_pos[1],joint_pos[2]))
+            for i in range(num_joints + 1):
+                joint_cv = (smooth_cvs / num_joints) * i
+                joint_pos = cmds.xform((dup_curve_shade_node[0] + '.controlPoints[' + str(int(joint_cv)) + ']'), q=True, t=True)
+                joint_name.append(self.get_joint_name(prefix, name, (i + curve_index + (curve_index * num_joints)), suffix, num_joints))
+                joint_create = cmds.joint(n=joint_name[i], rad=radius, p=(joint_pos[0], joint_pos[1], joint_pos[2]))
 
             cmds.delete(dup_curve)
 
             if orient_type:
                 cmds.joint(joint_name[0], e=True, ch=True, oj='yzx', sao='yup')
-                for axis in ['x','y','z']:
-                    cmds.setAttr((joint_name[-1]+'.jo'+axis),0.0)
+                for axis in ['x', 'y', 'z']:
+                    cmds.setAttr((joint_name[-1] + '.jo' + axis), 0.0)
 
             if create_chain:
                 children = cmds.listRelatives(joint_name[0], ad=True, type="joint")
                 children.reverse()
                 for child in children:
                     cmds.parent(child, world=True)
-
 
     # Mouse events for dragging the window
     def mousePressEvent(self, event):
